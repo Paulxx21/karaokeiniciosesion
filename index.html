@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecciona las canciones y subí a cantar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1DB954;
+        }
+        .login-box {
+            background-color: #191414;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .login-box input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .login-box button {
+            background-color: #1DB954;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .artist {
+            background-color: #282828;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .artist h3 {
+            margin-top: 0;
+            cursor: pointer;
+            color: #1DB954;
+        }
+        .songs {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .songs li {
+            margin-bottom: 10px;
+        }
+        .artist img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .buttons .action {
+            background-color: #1DB954;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .buttons .action:hover {
+            background-color: #1ed760;
+        }
+        #newArtistForm, #removeArtistForm {
+            background-color: #282828;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        #removeArtistForm {
+            display: none; /* Ocultar el formulario de eliminar artista inicialmente */
+        }
+        #removeArtistForm.active {
+            display: block; /* Mostrar el formulario de eliminar artista al hacer clic en el artista */
+        }
+        .logout-button {
+            background-color: #ff3b30;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="username" placeholder="Nombre de usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Entrar</button>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+        <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
+        <h2>Selecciona las canciones y subí a cantar</h2>
+        <form id="songForm">
+            <!-- AMERICO -->
+            <div class="artist" id="artist2">
+                <div>
+                    <h3 onclick="toggleArtistOptions('artist2')">AMERICO &#9660;</h3>
+                    <ul class="songs">
+                        <li><input type="radio" id="americo1" name="song" value="te vas" onclick="solicitarNombre('AMERICO', 'te vas')"><label for="americo1"> te vas</label></li>
+                        <li><input type="radio" id="americo2" name="song" value="embrujo" onclick="solicitarNombre('AMERICO', 'embrujo')"><label for="americo2"> embrujo</label></li>
+                    </ul>
+                </div>
+                <img src="https://www.vgl.cl/wp-content/uploads/2015/10/foto-americo1.jpg" alt="Americo">
+            </div>
+
+            <input type="hidden" id="nombreUsuario" name="nombreUsuario">
+        </form>
+
+        <div id="newArtistForm">
+            <h3>Agregar Nuevo Artista</h3>
+            <form onsubmit="addArtist(); return false;">
+                <label for="artistName">Nombre del Artista:</label><br>
+                <input type="text" id="artistName" name="artistName" required><br><br>
+                <label for="artistImage">Imagen del Artista:</label><br>
+                <input type="file" id="artistImage" name="artistImage" accept=".jpg,.jpeg,.png,.bmp,.tiff,.heif,.raw,.psd,.avif,.webp" required><br><br>
+                <div id="songInputs"></div>
+                <button type="button" class="action" onclick="addSongInput()">Agregar canción</button><br><br>
+                <button type="submit" class="action">Agregar Artista</button>
+            </form>
+        </div>
+
+        <div id="removeArtistForm">
+            <h3>Eliminar Artista</h3>
+            <form onsubmit="removeArtist(); return false;">
+                <label for="artistToRemove">Selecciona el Artista:</label><br>
+                <select id="artistToRemove" name="artistToRemove" required></select><br><br>
+                <button type="submit" class="action">Eliminar Artista</button>
+            </form>
+        </div>
+
+        <div class="buttons">
+            <button class="action" onclick="generateQRCode()">Generar Código QR</button>
+        </div>
+        <div id="qrCodeContainer" style="text-align: center; margin-top: 20px;"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        function login() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            if (username === 'PABLO' && password === 'GABRIEL') {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+
+        function logout() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+        }
+
+        let artistCount = 2;
+
+        function solicitarNombre(artista, cancion) {
+            var nombre = prompt("Por favor, ingresa tu nombre:");
+            if (nombre != null && nombre != "") {
+                document.getElementById("nombreUsuario").value = nombre;
+                enviarCorreo(nombre, artista, cancion);
+            }
+        }
+
+        function enviarCorreo(nombre, artista, cancion) {
+            var cuerpoCorreo = "Nombre: " + nombre + "\nArtista: " + artista + "\nCanción votada: " + cancion;
+            window.location.href = "mailto:emacantobarkaraoke@gmail.com?subject=Votos de Karaoke&body=" + encodeURIComponent(cuerpoCorreo);
+        }
+
+        function addSongInput() {
+            var songInputsContainer = document.getElementById('songInputs');
+            var songInputCount = songInputsContainer.getElementsByClassName('songInput').length;
+
+            var newSongInput = document.createElement('div');
+            newSongInput.className = 'songInput';
+            newSongInput.innerHTML = '<label for="song' + (songInputCount + 1) + '">Canción ' + (songInputCount + 1) + ':</label><br>' +
+                '<input type="text" id="song' + (songInputCount + 1) + '" name="song' + (songInputCount + 1) + '" required><br><br>';
+            songInputsContainer.appendChild(newSongInput);
+        }
+
+        function addArtist() {
+            var artistName = document.getElementById('artistName').value;
+            var artistImageInput = document.getElementById('artistImage');
+            var artistImageFile = artistImageInput.files[0];
+            var artistImageUrl = URL.createObjectURL(artistImageFile);
+            var songs = [];
+            var songInputs = document.querySelectorAll('.songInput input[type="text"]');
+            songInputs.forEach(function(input) {
+                songs.push(input.value);
+            });
+
+            var newArtistDiv = document.createElement('div');
+            newArtistDiv.className = 'artist';
+            newArtistDiv.id = 'artist' + (++artistCount);
+            var songListItems = songs.map(function(song, index) {
+                return '<li><input type="radio" id="' + artistName.toLowerCase() + (index + 1) + '" name="song" value="' + song + '" onclick="solicitarNombre(\'' + artistName + '\', \'' + song + '\')"><label for="' + artistName.toLowerCase() + (index + 1) + '"> ' + song + '</label></li>';
+            }).join('');
+            newArtistDiv.innerHTML = '<div><h3 onclick="toggleArtistOptions(\'artist' + artistCount + '\')">' + artistName + ' &#9660;</h3><ul class="songs">' + songListItems + '</ul></div><img src="' + artistImageUrl + '" alt="' + artistName + '">';
+            document.getElementById('songForm').insertBefore(newArtistDiv, document.getElementById('newArtistForm'));
+
+            updateRemoveArtistOptions();
+            document.getElementById('newArtistForm').reset();
+        }
+
+        function removeArtist() {
+            var artistToRemove = document.getElementById('artistToRemove').value;
+            var artistDiv = document.getElementById(artistToRemove);
+            artistDiv.remove();
+            updateRemoveArtistOptions();
+        }
+
+        function updateRemoveArtistOptions() {
+            var removeArtistSelect = document.getElementById('artistToRemove');
+            removeArtistSelect.innerHTML = '';
+            var artistDivs = document.querySelectorAll('.artist');
+            artistDivs.forEach(function(div) {
+                var artistName = div.querySelector('h3').innerText.split(' ')[0];
+                var option = document.createElement('option');
+                option.value = div.id;
+                option.textContent = artistName;
+                removeArtistSelect.appendChild(option);
+            });
+        }
+
+        function toggleArtistOptions(artistId) {
+            var artistDiv = document.getElementById(artistId);
+            var songList = artistDiv.querySelector('.songs');
+            var artistName = artistDiv.querySelector('h3');
+            if (songList.style.display === 'none' || songList.style.display === '') {
+                songList.style.display = 'block';
+                artistName.innerHTML = artistName.innerHTML.replace('&#9650;', '&#9660;');
+            } else {
+                songList.style.display = 'none';
+                artistName.innerHTML = artistName.innerHTML.replace('&#9660;', '&#9650;');
+            }
+        }
+
+        function generateQRCode() {
+            var qrCodeContainer = document.getElementById('qrCodeContainer');
+            qrCodeContainer.innerHTML = ''; // Clear previous QR code
+            var qrCode = new QRCode(qrCodeContainer, {
+                text: window.location.href,
+                width: 128,
+                height: 128
+            });
+            // Create the link
+            var linkElement = document.createElement('a');
+            linkElement.href = window.location.href;
+            linkElement.textContent = "Ir a la página web";
+            linkElement.style.color = "#1DB954";
+            linkElement.style.display = "block";
+            linkElement.style.marginTop = "10px";
+            qrCodeContainer.appendChild(linkElement);
+        }
+
+        document.getElementById('artist2').addEventListener('click', function() {
+            var removeArtistForm = document.getElementById('removeArtistForm');
+            removeArtistForm.classList.toggle('active');
+        });
+
+        // Pre-fill the remove artist select on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRemoveArtistOptions();
+        });
+    </script>
+</body>
+</html>
