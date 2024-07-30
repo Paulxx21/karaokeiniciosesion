@@ -114,6 +114,9 @@
         .qr-code {
             margin-top: 20px;
         }
+        #updateButton {
+            display: none; /* Ocultar el botón de actualizar inicialmente */
+        }
     </style>
     <!-- Incluir la librería para generar el código QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -173,6 +176,10 @@
             <div class="qr-code" id="qrcode"></div>
             <p><a href="#" id="qrLink" target="_blank">Ver en navegador</a></p>
         </div>
+
+        <div class="buttons">
+            <button id="updateButton" class="action" onclick="updateQRCode()">Actualizar</button>
+        </div>
     </div>
 
     <script>
@@ -182,6 +189,7 @@
             if (username === 'PABLO' && password === 'GABRIEL') {
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('updateButton').style.display = 'block';
                 updateQRCode();
             } else {
                 alert('Usuario o contraseña incorrectos');
@@ -210,12 +218,10 @@
             if (songCount <= 10) {
                 var songInput = document.createElement('div');
                 songInput.className = 'songInput';
-                songInput.innerHTML = `<label for="song${songCount}">Canción ${songCount}:</label><br>
-                                       <input type="text" id="song${songCount}" name="song${songCount}" required>
-                                       <button type="button" class="action" onclick="removeSongInput(this)">Eliminar</button><br><br>`;
+                songInput.innerHTML = `<label for="song${songCount}">Canción ${songCount}:</label><input type="text" id="song${songCount}" name="song${songCount}" required><button type="button" onclick="removeSongInput(this)">Eliminar</button>`;
                 document.getElementById('songInputs').appendChild(songInput);
             } else {
-                alert("Solo puedes agregar hasta 10 canciones.");
+                alert("No puedes agregar más de 10 canciones.");
             }
         }
 
@@ -324,9 +330,14 @@
         }
 
         function generateQRCode() {
+            updateQRCode();
+        }
+
+        function updateQRCode() {
             var url = window.location.href.split('?')[0] + '?view=users';
             document.getElementById('qrLink').href = url;
 
+            document.getElementById('qrcode').innerHTML = "";
             var qrcode = new QRCode(document.getElementById("qrcode"), {
                 text: url,
                 width: 128,
@@ -335,11 +346,6 @@
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
-        }
-
-        function updateQRCode() {
-            document.getElementById('qrcode').innerHTML = "";
-            generateQRCode();
         }
 
         window.onload = function() {
